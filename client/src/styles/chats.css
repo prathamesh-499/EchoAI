@@ -1,0 +1,9 @@
+
+.prompt{
+    max-height: 35vh;
+    width: 30vw;
+    
+}
+.prompt::placeholder {
+  color: #6c757d;
+}
