@@ -1,15 +1,18 @@
 import express from "express";
 import mongoose from "mongoose";
-import ejs from 'ejs';
-
 import { Chat } from "./models/chat.js";
 import path from "path";
-
+import cookieParser from "cookie-parser";
+import signuRoutes from "./routes/signup.routes.js";
+import cors from "cors";
 const app =express();
-
-app.set('view engine', 'ejs');
-
-
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+	origin: 'http://localhost:5173',
+	methods: ['GET', 'POST', 'PUT', 'DELETE'],
+	credentials: true
+}));
 
 (async()=>{
 	try{
@@ -24,17 +27,15 @@ app.set('view engine', 'ejs');
     });
 
 })();
+app.use("/signup",signuRoutes);
 
 
-
-app.get('/', (req, res) => {
-	res.send('Hello World')
+app.use((req,res)=>{
+	res.status(404).json({error:"Page not found"});
 });
-
-
 
 app.use((err,req,res,next)=>{
 	console.log(err);
-	res.status(500).send(err.message);
+	res.status(500).json({error:err.message});
 
 });

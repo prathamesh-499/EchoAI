@@ -8,11 +8,10 @@ const chatSchema=new mongoose.Schema(
             minlength:1,
             required:true
         },
-        users:[{
-            type:mongoose.Schema.Types.ObjectId,
-            ref:"User",
-            required:true
-        }]
+        sender:{
+            type:String,
+            required:true,
+        }
     },
     {
         timestamps: true
