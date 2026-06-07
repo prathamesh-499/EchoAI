@@ -1,20 +1,19 @@
-import { Sidebar } from "./Sidebar";
-import { Navbar } from "./Navbar";
-import { Chats } from "./Chats";
 import { StrictMode } from "react";
+import {Home} from "./Home"
+import {Login} from "./Login"
+import { Signup } from "./Signup";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 export function App() {
-  return (<>
-    <div className="d-flex ">
-      <Sidebar />
-      <div className="d-flex flex-column flex-grow-1">
-        <Navbar />
-        <Chats />
-
-      </div>
-    </div>
-  </>
+	return (
+		<BrowserRouter>
+		<Routes>
+		<Route path="/" element={<Home/>} />
+		<Route path="/login" element={<Login/>}/>	
+		<Route path="/signup" element={<Signup/>}/>	
+		</Routes>
+		</BrowserRouter>
 
 
-  );
+	);
 
 }
