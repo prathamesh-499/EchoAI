@@ -1,11 +1,21 @@
 import express from "express";
 import mongoose from "mongoose";
-import { Chat } from "./models/chat.js";
 import path from "path";
 import cookieParser from "cookie-parser";
-import signuRoutes from "./routes/signup.routes.js";
+import session from "express-session";
+import auth from "./routes/auth/signup.routes.js";
 import cors from "cors";
+import chatrouter from "./routes/index/chat.routes.js"
 const app =express();
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
@@ -27,7 +37,8 @@ app.use(cors({
     });
 
 })();
-app.use("/signup",signuRoutes);
+app.use("/auth",auth);
+app.use("",chatrouter);
 
 
 app.use((req,res)=>{
@@ -36,6 +47,6 @@ app.use((req,res)=>{
 
 app.use((err,req,res,next)=>{
 	console.log(err);
-	res.status(500).json({error:err.message});
+	res.status(err.status||500).json({error:err.message||"Internal Server Error"});
 
 });

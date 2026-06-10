@@ -20,7 +20,11 @@ const userSchema = new mongoose.Schema({
     },
     refreshToken:{
         type:String,
-    }
+    },
+    conversation:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Conversation"
+    }]
 
 });
 userSchema.pre('save',async function(){

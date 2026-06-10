@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const chatSchema=new mongoose.Schema(
+export const chatSchema=new mongoose.Schema(
     {
         message:{
             type:String,
@@ -19,5 +19,4 @@ const chatSchema=new mongoose.Schema(
 );
 
 
-export const Chat =mongoose.model("Chat",chatSchema);
 

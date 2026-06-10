@@ -1,17 +1,47 @@
 import { useState } from "react";
-import {Link} from "react-router-dom";
+import {Link,useNavigate} from "react-router-dom";
+import toast,{Toaster} from "react-hot-toast" 
 export function Login() {
+    const navigate=useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [email, setEmail] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit =async (e) => {
         e.preventDefault();
-        console.log("Username: ", username);
-        console.log("Password: ", password);
+        const res = await fetch('http://localhost:3000/auth/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data=await res.json();
+        
+        if(res.ok){
+            toast.success(`Welcome ${username}`);
+            navigate("/",{ replace: true });
+        }else{
+            toast.error("Login Failed");
+            console.error(data.message);
+        }
+
     }
     return (
         <div className="bg-dark vh-100 d-flex justify-content-center align-items-center">
+            <Toaster
+            toastOptions={{
+        success: {
+            style: {
+                background: "#000",
+                color: "#fff",
+            },
+        },
+        error: {
+            style: {
+                background: "#000",
+                color: "#fff",
+            },
+        },
+    }}/>
             <div
                 className="bg-black text-white p-5 rounded shadow"
                 style={{ width: "400px" }}
@@ -22,18 +52,8 @@ export function Login() {
                     <div className="mb-3">
                         <input
                             className="form-control"
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="mb-3">
-                        <input
-                            className="form-control"
                             type="text"
-                            placeholder="Username"
+                            placeholder="Username or Email"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
@@ -59,7 +79,7 @@ export function Login() {
 
                 <p className="text-center text-secondary mt-4 mb-0">
                     Don't have an account?{" "}
-                    <Link to="/signup" className="text-decoration-none">
+                    <Link to="/auth/signup" className="text-decoration-none">
                         Sign Up
                     </Link>
                 </p>

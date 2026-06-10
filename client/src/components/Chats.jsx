@@ -1,67 +1,86 @@
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState,useRef } from "react";
 import Chat from "./Chat";
 import "../styles/chats.css"
-import { GoogleGenAI } from "@google/genai";
-
-const apiKey = import.meta.env.VITE_API_KEY;
-const ai = new GoogleGenAI({ apiKey });
-
-
-
+import { Toaster } from "react-hot-toast";
+import { AuthContext } from "./AuthContext"
 export function Chats() {
+    const { user } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [chats, setChats] = useState([]);
     const [prompt, setPrompt] = useState("");
+    const conversationId=useRef(null);
     const chatsMemo = useMemo(() => {
         {
             return chats.map((chat, idx) => {
                 return <Chat key={idx} prompt={chat.prompt} by={chat.by} />
             })
         }
-    }, [chats])
-    async function geminiAi(prompt, currentChat) {
-        const chat = ai.chats.create({
-            model: "gemini-3.1-flash-lite",
-            history: currentChat.map((chat) => {
-                return {
-                    role: chat.by,
-                    parts: [{ text: chat.prompt }]
-                }
-            }),
-        });
-        const stream1 = await chat.sendMessageStream({
-            message: prompt,
-        });
-        let pretext = "";
-        setChats((prevChats) => ([...prevChats, { by: "model", prompt: "" }]));
-        for await (const chunk of stream1) {
-            pretext += chunk.text;
-            setChats((prevChats) => {
-                const update = [...prevChats];
-                update[update.length - 1] = { by: "model", prompt: pretext };
-                return update;
-            });
-
-        }
-        // console.log(pretext);
-
-    }
-
+    }, [chats]);
     async function sendPromt(e) {
         e.preventDefault();
         setLoading(true);
         setChats((prevChats) => ([...prevChats, { by: "user", prompt: prompt }]));
         const tempPrompt = prompt;
         setPrompt("");
-        await geminiAi(tempPrompt, chats).catch(e => {
-            console.log(e);
-        });
-        setLoading(false);
+        if (user) {
+            const res = await fetch("http://localhost:3000/chat", {
+                method: 'POST',
+                credentials: 'include',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    conversationId: conversationId.current,
+                    prompt: tempPrompt,
+                }),
+            });
 
+            setChats((prev) => [...prev, { by: "ai", prompt: "" }]);
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const raw = decoder.decode(value);
+                const lines = raw.split("\n").filter(line => line.startsWith("data:"));
+                for (const line of lines) {
+                    try {
+                        console.log(line);
+                        const json = JSON.parse(line.replace("data:", "").trim());
+                        if(json.conversationId){
+                            conversationId.current=json?.conversationId;
+                        }
+                        const text = json?.message;
+                        if (text) {
+                            setChats((prev) => {
+                                const updated = [...prev];
+                                updated[updated.length - 1] = {
+                                    by: "ai",
+                                    prompt: updated[updated.length - 1].prompt + text
+                                };
+                                return updated;
+                            });
+                        }
+                    } catch (err) {
+                        // incomplete chunk, skip
+                    }
+                }
+            }
+        }
+
+        setLoading(false);
     }
     return (
-        <div style={{ height: "90vh" }} className="d-flex flex-column flex-grow-1 bg-dark text-white ">
-
+        <div style={{ height: "90vh", maxWidth: "85vw" }} className="d-flex flex-column flex-grow-1 bg-dark text-white ">
+            <Toaster
+                toastOptions={{
+                    success: {
+                        style: {
+                            background: "#000",
+                            color: "#fff",
+                        },
+                    }
+                }}
+            />
             <div className="Chats d-flex flex-column flex-grow-1 overflow-auto align-items-center ">
                 <div className="mt-auto w-100">
                     {chatsMemo}
