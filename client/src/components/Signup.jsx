@@ -1,13 +1,25 @@
-import { Link ,useNavigate} from "react-router-dom";
-import { useState } from 'react';
+import { data, Link ,useNavigate} from "react-router-dom";
+import { useState,useContext } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import {AuthContext} from "./AuthContext"
 export const Signup = function () {
+    const{setUser}=useContext(AuthContext);
     const navigate = useNavigate();
+    const [signUpError,setSignUpError]=useState(null);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
     const handleSubmit = async(e) => {
         e.preventDefault();
+        if(email.trim()===""){
+            return setSignUpError("Email is required");
+        };
+        if(username.trim()===""){
+            return setSignUpError("Username is required");
+        };
+        if(password.trim()===""){
+            return setSignUpError("Password is required");
+        };
         const res = await fetch('http://localhost:3000/auth/signup', {
             method: 'POST',
             credentials: 'include',
@@ -15,13 +27,14 @@ export const Signup = function () {
             body: JSON.stringify({ email,username, password })
         });
         const data=await res.json();
-        
         if(res.ok){
             toast.success("Account created!");
+            setUser(data.user);
             navigate("/",{ replace: true });
         }else{
+            console.error(data);
+            setSignUpError(data.error);
             toast.error("Account could not be created!");
-            console.error(data.message);
         }
 
     }
@@ -48,6 +61,7 @@ export const Signup = function () {
                 style={{ width: "400px" }}
             >
                 <h2  className="text-center mb-4">Create Account</h2>
+                { signUpError && <p className="alert alert-danger py-2 text-center" >{signUpError}</p>}
 
                 <form onSubmit={handleSubmit}>
                     <div required className="mb-3">

@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import {Link,useNavigate} from "react-router-dom";
-import toast,{Toaster} from "react-hot-toast" 
+import toast,{Toaster} from "react-hot-toast";
+import {AuthContext} from "./AuthContext";
+
 export function Login() {
     const navigate=useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
+    const{setUser}=useContext(AuthContext);
+    const [loginError,setLoginError]=useState(null);
     const handleSubmit =async (e) => {
         e.preventDefault();
+        if(username.trim()===""){
+            return setLoginError("username is required");
+        };
+        if(password.trim()===""){
+            return setLoginError("password is required");
+        };
         const res = await fetch('http://localhost:3000/auth/login', {
             method: 'POST',
             credentials: 'include',
@@ -18,10 +27,13 @@ export function Login() {
         
         if(res.ok){
             toast.success(`Welcome ${username}`);
+            setUser(data.user);
             navigate("/",{ replace: true });
         }else{
             toast.error("Login Failed");
-            console.error(data.message);
+            if(data.error=="Invalid credentials"){
+                setLoginError(data.error);
+            }
         }
 
     }
@@ -47,7 +59,7 @@ export function Login() {
                 style={{ width: "400px" }}
             >
                 <h2 className="text-center mb-4">Welcome Back</h2>
-
+                { loginError && <p className="alert alert-danger py-2 text-center" >{loginError}</p>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <input

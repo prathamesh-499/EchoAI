@@ -1,39 +1,63 @@
-import { useContext, useMemo, useState,useRef } from "react";
+import { useContext, useMemo, useState, useRef, useEffect } from "react";
 import Chat from "./Chat";
 import "../styles/chats.css"
 import { Toaster } from "react-hot-toast";
 import { AuthContext } from "./AuthContext"
-export function Chats() {
+
+export function Chats({ chats, setChats,conversationIdRef }) {
     const { user } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
-    const [chats, setChats] = useState([]);
-    const [prompt, setPrompt] = useState("");
-    const conversationId=useRef(null);
-    const chatsMemo = useMemo(() => {
-        {
-            return chats.map((chat, idx) => {
-                return <Chat key={idx} prompt={chat.prompt} by={chat.by} />
-            })
-        }
+    const [message, setMessage] = useState("");
+    const chatBottomRef = useRef(null);
+    const textareaRef = useRef(null);
+
+    useEffect(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [chats]);
-    async function sendPromt(e) {
+
+    const chatsMemo = useMemo(() => {
+        return chats.map((chat, idx) => (
+            <Chat key={chat._id || idx} message={chat.message} sender={chat.sender} />
+        ));
+    }, [chats]);
+
+    function handleInput(e) {
+        setMessage(e.target.value);
+        e.target.style.height = "auto";
+        e.target.style.height = Math.min(e.target.scrollHeight, 160) + "px";
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendPrompt(e);
+        }
+    }
+
+    async function sendPrompt(e) {
         e.preventDefault();
+        if (!message.trim() || loading) return;
+
         setLoading(true);
-        setChats((prevChats) => ([...prevChats, { by: "user", prompt: prompt }]));
-        const tempPrompt = prompt;
-        setPrompt("");
+        setChats((prev) => [...prev, { sender: "user", message }]);
+        const tempPrompt = message;
+        setMessage("");
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+        }
+
         if (user) {
             const res = await fetch("http://localhost:3000/chat", {
-                method: 'POST',
-                credentials: 'include',
+                method: "POST",
+                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    conversationId: conversationId.current,
+                    conversationId: conversationIdRef.current,
                     prompt: tempPrompt,
                 }),
             });
 
-            setChats((prev) => [...prev, { by: "ai", prompt: "" }]);
+            setChats((prev) => [...prev, { sender: "ai", message: "" }]);
 
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
@@ -41,26 +65,25 @@ export function Chats() {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const raw = decoder.decode(value);
-                const lines = raw.split("\n").filter(line => line.startsWith("data:"));
+                const lines = raw.split("\n").filter((l) => l.startsWith("data:"));
                 for (const line of lines) {
                     try {
-                        console.log(line);
                         const json = JSON.parse(line.replace("data:", "").trim());
-                        if(json.conversationId){
-                            conversationId.current=json?.conversationId;
+                        if (json.conversationId) {
+                            conversationIdRef.current = json.conversationId;
                         }
                         const text = json?.message;
                         if (text) {
                             setChats((prev) => {
                                 const updated = [...prev];
                                 updated[updated.length - 1] = {
-                                    by: "ai",
-                                    prompt: updated[updated.length - 1].prompt + text
+                                    sender: "ai",
+                                    message: updated[updated.length - 1].message + text,
                                 };
                                 return updated;
                             });
                         }
-                    } catch (err) {
+                    } catch {
                         // incomplete chunk, skip
                     }
                 }
@@ -69,32 +92,64 @@ export function Chats() {
 
         setLoading(false);
     }
+
     return (
-        <div style={{ height: "90vh", maxWidth: "85vw" }} className="d-flex flex-column flex-grow-1 bg-dark text-white ">
+        <div className="chats-page">
             <Toaster
                 toastOptions={{
                     success: {
-                        style: {
-                            background: "#000",
-                            color: "#fff",
-                        },
-                    }
+                        style: { background: "#1e1e1e", color: "#fff", border: "0.5px solid #333" },
+                    },
                 }}
             />
-            <div className="Chats d-flex flex-column flex-grow-1 overflow-auto align-items-center ">
-                <div className="mt-auto w-100">
-                    {chatsMemo}
-                </div>
 
+            <div className="chats-body">
+                {chats.length === 0 ? (
+                    <div className="chats-empty">
+                        <div className="chats-empty-icon">✦</div>
+                        <h2 className="chats-empty-title">What can I help with?</h2>
+                        <p className="chats-empty-sub">Ask anything — I'm here to help.</p>
+                    </div>
+                ) : (
+                    <div className="chats-messages">
+                        {chatsMemo}
+                        {loading && (
+                            <div className="typing-indicator">
+                                <span /><span /><span />
+                            </div>
+                        )}
+                        <div ref={chatBottomRef} />
+                    </div>
+                )}
             </div>
-            <form onSubmit={sendPromt} className="align-self-center">
-                <div>
-                    <input onChange={(e) => { setPrompt(e.target.value); }} value={prompt} name="prompt" type="text" placeholder="Ask anything" className=" w-60 prompt form-control bg-dark text-white mb-4 d-inline-block" />
-                    <button className="btn btn-dark" disabled={(loading || (prompt.trim() === ""))} type="submit">Send</button>
-                </div>
-            </form>
 
+            <div className="chats-input-area">
+                <form onSubmit={sendPrompt} className="chats-input-form">
+                    <div className="chats-input-box">
+                        <textarea
+                            ref={textareaRef}
+                            value={message}
+                            onChange={handleInput}
+                            onKeyDown={handleKeyDown}
+                            placeholder="Ask anything…"
+                            className="chats-textarea"
+                            rows={1}
+                            
+                        />
+                        <button
+                            type="submit"
+                            className="chats-send-btn"
+                            disabled={loading || message.trim() === ""}
+                            aria-label="Send message"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 13V3M3 8l5-5 5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p className="chats-input-hint">Enter to send · Shift+Enter for new line</p>
+                </form>
+            </div>
         </div>
     );
-
 }

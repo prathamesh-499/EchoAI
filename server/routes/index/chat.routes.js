@@ -3,10 +3,12 @@ import {Router} from "express";
 import { geminiAi } from "../../services/geminiApi.js";
 import { verifyJwt } from "../../middleware/verifyJwt.js";
 import { conversation } from "../../controllers/conversation.controllers.js";
+import { showConversation } from "../../controllers/showChats.controllers.js";
 
 const router=Router();
 router.post("/chat",verifyJwt,geminiAi);
 router.get("/conversation",verifyJwt,conversation);
+router.get("/conversation/:id",verifyJwt,showConversation);
 
 
 export default router;

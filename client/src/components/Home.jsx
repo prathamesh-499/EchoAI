@@ -2,15 +2,19 @@ import React from 'react'
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
 import { Chats } from "./Chats";
-export const Home =function() {
-  return (
-    <div className="d-flex ">
-				<Sidebar />
-				<div className="d-flex flex-column flex-grow-1">
-					<Navbar />
-					<Chats />
-
-				</div>
-			</div>
-  )
+import { useState,useRef } from 'react';
+import "../styles/home.css"
+export const Home = function () {
+    const conversationIdRef = useRef(null);
+    
+    const [chats, setChats] = useState([]);
+    return (
+        <div className="home-layout">
+            <Sidebar setChats={setChats} conversationIdRef={conversationIdRef} />
+            <div className="home-main">
+                <Navbar />
+                <Chats chats={chats} setChats={setChats} conversationIdRef={conversationIdRef} />
+            </div>
+        </div>
+    );
 }

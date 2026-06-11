@@ -8,9 +8,14 @@ export const verifyJwt = (req, res, next) => {
     }
     jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, decoded) => {
         if (err) {
-            return next(new ApiError(401,err.name));
+            res.clearCookie("accessToken", {
+                httpOnly: true,
+                secure: true,
+                path: "/"
+            });
+            return next(new ApiError(401, "Unauthorized"));
         }
-        req.user=decoded;
+        req.user = decoded;
         return next();
     });
 }

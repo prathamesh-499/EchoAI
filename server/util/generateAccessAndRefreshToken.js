@@ -7,7 +7,7 @@ export async function generateAccessAndRefreshToken(user) {
             _id: user._id,
             username: user.username
         }, process.env.JWT_ACCESS_TOKEN,
-            { expiresIn:"5h" }
+            { expiresIn:"30m" }
         );
         const refreshToken = jwt.sign({
             _id: user._id,

@@ -10,7 +10,6 @@ export const login = asyncWrapper(async (req, res,next) => {
     if(!user){
         return next(new ApiError(401,"Invalid credentials"));
     }
-
     if(!await user.checkpassword(password)){
         return next(new ApiError(401,"Invalid credentials"));
     }
@@ -29,8 +28,10 @@ export const login = asyncWrapper(async (req, res,next) => {
         success: true,
         message: "Account loggedin ",
         user: {
+            _id:user._id,
             username: user.username,
             email: user.email,
+
         },
     });
 

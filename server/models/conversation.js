@@ -7,7 +7,11 @@ const conversationSchema=mongoose.Schema(
             type:String,
             required:true,
         },
-        chats:[chatSchema]
+        chats:[chatSchema],
+        owner:{
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"user"
+            }
     },
     {
         timestamps:true

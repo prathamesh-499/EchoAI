@@ -3,10 +3,10 @@ import "../styles/chat.css"
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-export default function Chat({ prompt, by }) {
+export default function Chat({ message, sender }) {
 	return (
 
-		<div className={` w-75 m-auto p-2 d-flex flex-wrap flex-row ${by === "user" ? "justify-content-end" : "justify-content-start"}`}>
+		<div className={` w-75 m-auto p-2 d-flex flex-wrap flex-row ${sender === "user" ? "justify-content-end" : "justify-content-start"}`}>
 			<div className="markdown-body ">
 				<ReactMarkdown
 					components={{
@@ -27,7 +27,7 @@ export default function Chat({ prompt, by }) {
 						},
 					}}
 				>
-					{prompt}
+					{message}
 				</ReactMarkdown>
 			</div>
 		</div>

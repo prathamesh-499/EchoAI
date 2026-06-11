@@ -1,0 +1,54 @@
+import jwt from "jsonwebtoken";
+import { User } from "../models/user.js";
+import { generateAccessAndRefreshToken } from "../util/generateAccessAndRefreshToken.js";
+import { asyncWrapper } from "../middleware/asyncWrapper.js";
+import{ApiError}from "../util/ApiError.js"
+export const refreshToken = asyncWrapper(async (req, res, next) => {
+    const token = req.cookies.refreshToken;
+    if (!token) return next(new ApiError(401, "Unauthorized"));
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_TOKEN);
+        const decodedUser = decoded;
+        const user = await User.findById(decodedUser._id).select("_id refreshToken username email");
+        if (!user) {
+            return next(new ApiError(401, "Unauthorized"));
+        }
+        if (token !== user.refreshToken) {
+            return next(new ApiError(401, "Unauthorized"));
+        }
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user);
+        user.refreshToken = refreshToken;
+        await user.save();
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: true,
+            path: "/"
+        });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            path: "/auth/refreshToken"
+        });
+
+        return res.json({
+            success: true,
+            message: "Account loggedin ",
+            user: {
+                _id:user._id,
+                username: user.username,
+                email: user.email,
+            },
+        });
+    } catch (error) {
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            path: "/auth/refreshToken"
+        });
+        return next(new ApiError(401, "Unauthorized"));
+    }
+
+
+
+
+})

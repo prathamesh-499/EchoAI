@@ -1,0 +1,76 @@
+.navbar-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10px 20px;
+    border-bottom: 0.5px solid #242424;
+    background: #1a1a1a;
+    flex-shrink: 0;
+    min-height: 52px;
+}
+
+/* ── Auth links (logged out) ──────────────────────────── */
+.navbar-auth-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.navbar-link {
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 0.5px solid #333;
+    color: #aaa;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    background: transparent;
+}
+.navbar-link:hover {
+    background: #222;
+    color: #ddd;
+}
+.navbar-link--primary {
+    background: #2a2a4e;
+    border-color: #3a3a6a;
+    color: #9999cc;
+}
+.navbar-link--primary:hover {
+    background: #3a3a6a;
+    color: #bbbde0;
+}
+
+/* ── User chip (logged in) ────────────────────────────── */
+.navbar-user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #222;
+    border: 0.5px solid #2e2e2e;
+    border-radius: 20px;
+    padding: 5px 12px 5px 6px;
+}
+
+.navbar-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #252545;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #8888cc;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.navbar-username {
+    font-size: 13px;
+    color: #bbb;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
