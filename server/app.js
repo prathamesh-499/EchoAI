@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import path from "path";
 import cookieParser from "cookie-parser";
 import session from "express-session";
-import auth from "./routes/auth/signup.routes.js";
+import authrouter from "./routes/auth/signup.routes.js";
 import cors from "cors";
 import chatrouter from "./routes/index/chat.routes.js"
 const app =express();
@@ -37,7 +37,7 @@ app.use(cors({
     });
 
 })();
-app.use("/auth",auth);
+app.use("/auth",authrouter);
 app.use("",chatrouter);
 
 

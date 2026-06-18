@@ -103,3 +103,89 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+.conv-item-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 1px;
+}
+
+/* Three-dot button */
+.conv-menu-btn {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s;
+    padding: 0;
+}
+.conv-item-wrapper:hover .conv-menu-btn {
+    opacity: 1;
+}
+.conv-menu-btn:hover {
+    background: #2a2a2a;
+    color: #ccc;
+}
+
+/* Dropdown */
+.conv-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 2px);
+    background: #1e1e1e;
+    border: 0.5px solid #333;
+    border-radius: 9px;
+    padding: 4px;
+    z-index: 100;
+    min-width: 130px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.conv-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
+    border: none;
+    background: transparent;
+    color: #aaa;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, color 0.15s;
+}
+.conv-menu-item:hover {
+    background: #2a2a2a;
+    color: #ddd;
+}
+.conv-menu-item--delete { color: #c47a7a; }
+.conv-menu-item--delete:hover {
+    background: #2e1a1a;
+    color: #e08080;
+}
+
+/* Rename input */
+.conv-rename-input {
+    width: 100%;
+    padding: 6px 10px;
+    background: #222;
+    border: 0.5px solid #4a4a6a;
+    border-radius: 7px;
+    color: #ddd;
+    font-size: 13px;
+    outline: none;
+}
+.conv-rename-input:focus {
+    border-color: #6666aa;
+}

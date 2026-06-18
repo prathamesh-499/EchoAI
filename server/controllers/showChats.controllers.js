@@ -11,6 +11,5 @@ export const showConversation=asyncWrapper(async(req,res,next)=>{
     if(!conversation.owner.equals(req.user._id)){
         return next(new ApiError(401,"Unauthorized"));
     }
-    console.log(conversation.chats);
     return res.json(conversation.chats);
 });

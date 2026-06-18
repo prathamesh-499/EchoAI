@@ -7,7 +7,7 @@ export const conversation=asyncWrapper(async (req, res, next)=> {
     .populate(
         {
             path: "conversation",
-            select: "-chats"
+            select: "-chats -owner"
         }
     );
     if(!user){

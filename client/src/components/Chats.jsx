@@ -4,7 +4,7 @@ import "../styles/chats.css"
 import { Toaster } from "react-hot-toast";
 import { AuthContext } from "./AuthContext"
 
-export function Chats({ chats, setChats,conversationIdRef }) {
+export function Chats({ chats, setChats,conversationIdRef,setConversation }) {
     const { user } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
@@ -47,7 +47,7 @@ export function Chats({ chats, setChats,conversationIdRef }) {
         }
 
         if (user) {
-            const res = await fetch("http://localhost:3000/chat", {
+            const res = await fetch("http://localhost:3000/conversation", {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -71,6 +71,7 @@ export function Chats({ chats, setChats,conversationIdRef }) {
                         const json = JSON.parse(line.replace("data:", "").trim());
                         if (json.conversationId) {
                             conversationIdRef.current = json.conversationId;
+                            setConversation(pre=>([{title:json.title,_id:json.conversationId},...pre]));
                         }
                         const text = json?.message;
                         if (text) {

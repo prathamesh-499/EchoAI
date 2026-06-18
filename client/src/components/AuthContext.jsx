@@ -15,7 +15,6 @@ export function AuthProvider({ children }) {
                 });
                 if (res.ok) {
                     const data = await res.json();
-
                     setUser(data);
                 }
                 if (res.status === 401) {
@@ -25,9 +24,11 @@ export function AuthProvider({ children }) {
                             credentials: "include",
                         });
                         if(res.ok){
+                            const data = await res.json();
                             setUser(data.user);
                         }
                     } catch (error) {
+                        console.log(error);
                         navigate("/auth/login");
                     }
 

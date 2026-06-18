@@ -52,7 +52,7 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
 
     if (!conversationId) {
         const user = await User.findByIdAndUpdate(req.user._id, { $push: { conversation: conversation._id } });
-        res.write(`data: ${JSON.stringify({ conversationId: conversation._id })}\n\n`);
+        res.write(`data: ${JSON.stringify({ conversationId: conversation._id ,title:conversation.title})}\n\n`);
     }
 
     res.end();

@@ -1,19 +1,21 @@
 import { User } from "../models/user.js";
 import { ApiError } from "../util/ApiError.js";
-import {generateAccessAndRefreshToken} from "../util/generateAccessAndRefreshToken.js"
-import {asyncWrapper} from "../middleware/asyncWrapper.js"
-export const login = asyncWrapper(async (req, res,next) => {
-    const{username,password}=req.body;
+import { generateAccessAndRefreshToken } from "../util/generateAccessAndRefreshToken.js"
+import { asyncWrapper } from "../middleware/asyncWrapper.js"
+export const login = asyncWrapper(async (req, res, next) => {
+    const { username, password } = req.body;
 
-    const user =await User.findOne({$or:[{username:username},{email:username}]});
+    const user = await User.findOne({ $or: [{ username: username }, { email: username }] });
 
-    if(!user){
-        return next(new ApiError(401,"Invalid credentials"));
+    if (!user) {
+        return next(new ApiError(401, "Invalid credentials"));
     }
-    if(!await user.checkpassword(password)){
-        return next(new ApiError(401,"Invalid credentials"));
+    if (!await user.checkpassword(password)) {
+        return next(new ApiError(401, "Invalid credentials"));
     }
-    const { accessToken, refreshToken } =await generateAccessAndRefreshToken(user);
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user);
+    user.refreshToken = refreshToken;
+    await user.save();
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: true,
@@ -28,7 +30,7 @@ export const login = asyncWrapper(async (req, res,next) => {
         success: true,
         message: "Account loggedin ",
         user: {
-            _id:user._id,
+            _id: user._id,
             username: user.username,
             email: user.email,
 

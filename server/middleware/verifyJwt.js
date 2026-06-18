@@ -8,11 +8,13 @@ export const verifyJwt = (req, res, next) => {
     }
     jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, decoded) => {
         if (err) {
-            res.clearCookie("accessToken", {
-                httpOnly: true,
-                secure: true,
-                path: "/"
-            });
+            console.log("URL From ",req.url);
+            console.log(err);
+            // res.clearCookie("accessToken", {
+            //     httpOnly: true,
+            //     secure: true,
+            //     path: "/"
+            // });
             return next(new ApiError(401, "Unauthorized"));
         }
         req.user = decoded;
