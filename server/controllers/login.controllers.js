@@ -18,22 +18,19 @@ export const login = asyncWrapper(async (req, res, next) => {
     await user.save();
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/"
     });
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/auth/refreshToken"
     });
     res.json({
         success: true,
         message: "Account loggedin ",
         user: {
-            _id: user._id,
             username: user.username,
-            email: user.email,
-
         },
     });
 

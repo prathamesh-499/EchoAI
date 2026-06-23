@@ -1,19 +1,15 @@
 import { useContext, useMemo, useState, useRef, useEffect } from "react";
 import Chat from "./Chat";
 import "../styles/chats.css"
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { AuthContext } from "./AuthContext"
 
 export function Chats({ chats, setChats,conversationIdRef,setConversation }) {
-    const { user } = useContext(AuthContext);
+    const { user ,setUser} = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const chatBottomRef = useRef(null);
     const textareaRef = useRef(null);
-
-    useEffect(() => {
-        chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [chats]);
 
     const chatsMemo = useMemo(() => {
         return chats.map((chat, idx) => (
@@ -37,9 +33,11 @@ export function Chats({ chats, setChats,conversationIdRef,setConversation }) {
     async function sendPrompt(e) {
         e.preventDefault();
         if (!message.trim() || loading) return;
-
         setLoading(true);
         setChats((prev) => [...prev, { sender: "user", message }]);
+        setTimeout(() => {
+        chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
         const tempPrompt = message;
         setMessage("");
         if (textareaRef.current) {
@@ -47,47 +45,53 @@ export function Chats({ chats, setChats,conversationIdRef,setConversation }) {
         }
 
         if (user) {
-            const res = await fetch("http://localhost:3000/conversation", {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    conversationId: conversationIdRef.current,
-                    prompt: tempPrompt,
-                }),
-            });
-
-            setChats((prev) => [...prev, { sender: "ai", message: "" }]);
-
-            const reader = res.body.getReader();
-            const decoder = new TextDecoder();
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                const raw = decoder.decode(value);
-                const lines = raw.split("\n").filter((l) => l.startsWith("data:"));
-                for (const line of lines) {
-                    try {
-                        const json = JSON.parse(line.replace("data:", "").trim());
-                        if (json.conversationId) {
-                            conversationIdRef.current = json.conversationId;
-                            setConversation(pre=>([{title:json.title,_id:json.conversationId},...pre]));
+            try {
+                const res = await fetch("http://localhost:3000/conversation", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        conversationId: conversationIdRef.current,
+                        prompt: tempPrompt,
+                    }),
+                });
+                
+    
+                if (res.ok) {
+                    setChats((prev) => [...prev, { sender: "ai", message: "" }]);
+        
+                    const reader = res.body.getReader();
+                    const decoder = new TextDecoder();
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        const raw= decoder.decode(value);
+                        console.log(raw);
+                        const lines = raw.split("\n").filter((l) => l.startsWith("data:"));
+                        for (const line of lines) {
+                                const json = JSON.parse(line.replace("data:", "").trim());
+                                if (json?.conversationId) {
+                                    conversationIdRef.current = json.conversationId;
+                                    setConversation(pre=>([{title:json.title,_id:json.conversationId},...pre]));
+                                }
+                                const text = json?.message;
+                                if (text) {
+                                    setChats((prev) => {
+                                        const updated = [...prev];
+                                        updated[updated.length - 1] = {
+                                            sender: "ai",
+                                            message: updated[updated.length - 1].message + text,
+                                        };
+                                        return updated;
+                                    });
+                                }
+                            
                         }
-                        const text = json?.message;
-                        if (text) {
-                            setChats((prev) => {
-                                const updated = [...prev];
-                                updated[updated.length - 1] = {
-                                    sender: "ai",
-                                    message: updated[updated.length - 1].message + text,
-                                };
-                                return updated;
-                            });
-                        }
-                    } catch {
-                        // incomplete chunk, skip
-                    }
                 }
+                }
+                
+            } catch (error) {
+                toast.error(error.message);
             }
         }
 

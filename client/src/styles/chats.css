@@ -102,6 +102,18 @@
     padding: 10px 10px 10px 16px;
     transition: border-color 0.2s;
 }
+
+.chats-input-box textarea {
+  overflow: auto;
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE/Edge */
+}
+
+.chats-input-box textarea::-webkit-scrollbar {
+  display: none;              /* Chrome/Safari */
+}
+
+
 .chats-input-box:focus-within {
     border-color: #4a4a6a;
 }

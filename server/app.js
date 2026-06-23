@@ -1,20 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
-import path from "path";
 import cookieParser from "cookie-parser";
-import session from "express-session";
 import authrouter from "./routes/auth/signup.routes.js";
 import cors from "cors";
 import chatrouter from "./routes/index/chat.routes.js"
 const app =express();
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -26,7 +16,7 @@ app.use(cors({
 
 (async()=>{
 	try{
-		await mongoose.connect('mongodb://127.0.0.1:27017/chat');
+		await mongoose.connect(process.env.MONGO_URI);
 	}
 	catch(err){
 		console.log(err);

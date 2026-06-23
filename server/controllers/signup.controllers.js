@@ -25,12 +25,12 @@ export const signup = asyncWrapper(async (req, res,next) => {
     
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/"
     });
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/auth/refreshToken"
     });
     res.json({
@@ -38,7 +38,6 @@ export const signup = asyncWrapper(async (req, res,next) => {
         message: "Account created successfully",
         user: {
             username: user.username,
-            email: user.email,
         },
     });
 })

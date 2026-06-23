@@ -6,7 +6,7 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 export default function Chat({ message, sender }) {
 	return (
 
-		<div className={` w-75 m-auto p-2 d-flex flex-wrap flex-row ${sender === "user" ? "justify-content-end" : "justify-content-start"}`}>
+		<div className={` w-75 m-auto p-2 d-flex flex-wrap flex-row ${sender === "user" ? "justify-content-end bg-black" : "justify-content-start"}`}>
 			<div className="markdown-body ">
 				<ReactMarkdown
 					components={{

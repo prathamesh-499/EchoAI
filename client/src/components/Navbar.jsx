@@ -1,22 +1,73 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/navbar.css"
-import { useContext } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { AuthContext } from "./AuthContext"
+import toast from "react-hot-toast";
 
 export function Navbar() {
-    const { user, loading } = useContext(AuthContext);
+    const { user, loading, setUser } = useContext(AuthContext);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const chipRef = useRef(null);
+    const navigate = useNavigate();
 
     const initials = user?.username
         ? user.username.slice(0, 2).toUpperCase()
         : null;
 
+    useEffect(() => {
+        function handleClickOutside(e) {
+            if (chipRef.current && !chipRef.current.contains(e.target)) {
+                setMenuOpen(false);
+            }
+        }
+        if (menuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+            return () => document.removeEventListener("mousedown", handleClickOutside);
+        }
+    }, [menuOpen]);
+
+    async function handleLogout() {
+        setMenuOpen(false);
+        try {
+            const res = await fetch("http://localhost:3000/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+            if (res.ok) {
+                setUser(null);
+                navigate("/auth/login");
+            } else {
+                toast.error("Logout failed");
+            }
+        } catch (err) {
+            toast.error("Logout failed");
+            console.log(err);
+        }
+    }
+
     return (
         <div className="navbar-bar">
             {!loading && (
                 user ? (
-                    <div className="navbar-user-chip">
-                        <div className="navbar-avatar">{initials}</div>
-                        <span className="navbar-username">{user.username}</span>
+                    <div className="navbar-user-chip-wrapper" ref={chipRef}>
+                        <button
+                            className="navbar-user-chip"
+                            onClick={() => setMenuOpen(prev => !prev)}
+                        >
+                            <div className="navbar-avatar">{initials}</div>
+                            <span className="navbar-username">{user.username}</span>
+                        </button>
+                        {menuOpen && (
+                            <div className="navbar-menu-dropdown">
+                                <button className="navbar-menu-item navbar-menu-item--logout" onClick={handleLogout}>
+                                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                                        <path d="M5 1.5H2.5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1H5M9 9l3-2.5L9 4M12 6.5H4.5"
+                                            stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    Log out
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="navbar-auth-links">
