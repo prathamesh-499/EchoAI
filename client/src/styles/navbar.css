@@ -128,3 +128,21 @@
     background: #2e1a1a;
     color: #e08080;
 }
+.navbar-menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #ccc;
+    cursor: pointer;
+    margin-right: auto; /* pushes it to the left, keeps auth/user chip flush right */
+}
+.navbar-menu-toggle:hover { background: #222; }
+
+@media (max-width: 768px) {
+    .navbar-menu-toggle { display: flex; }
+}

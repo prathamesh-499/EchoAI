@@ -10,11 +10,11 @@ export const verifyJwt = (req, res, next) => {
         if (err) {
             console.log("URL From ",req.url);
             console.log(err);
-            // res.clearCookie("accessToken", {
-            //     httpOnly: true,
-            //     secure: true,
-            //     path: "/"
-            // });
+            res.clearCookie("accessToken", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                path: "/"
+            });
             return next(new ApiError(401, "Unauthorized"));
         }
         req.user = decoded;

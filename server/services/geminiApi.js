@@ -6,6 +6,12 @@ import { User } from "../models/user.js";
 const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
 export const geminiAi = asyncWrapper(async (req, res, next) => {
+    let clientDisconnected = false;
+    const abortController = new AbortController();
+    res.on("close", () => {
+        abortController.abort();
+        clientDisconnected = true;
+    });
     const { conversationId, prompt } = req.body;
     const userId = req.user._id;
     let conversation = null;
@@ -16,10 +22,11 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
         }
 
     } else {
+        if (clientDisconnected) return;
         const title = await geminiAiTitle(prompt);
         conversation = new Conversation({
             title: title,
-            chats: [] ,
+            chats: [],
             owner: req.user._id
         });
     }
@@ -34,26 +41,33 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
                 }
             }),
     });
-    const stream1 = await chat.sendMessageStream({
-        message: prompt,
-    });
-    let pretext = "";
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
     res.flushHeaders();
-    for await (const chunk of stream1) {
-        pretext += chunk.text;
-        const message = chunk.text;
-        res.write(`data:${JSON.stringify({ message })}\n\n`);
+    const stream1 = await chat.sendMessageStream({
+        message: prompt,
+        config: { abortSignal: abortController.signal }
+    });
+    let pretext = "";
+    try {
+        for await (const chunk of stream1) {
+            if (clientDisconnected) break;
+            pretext += chunk.text;
+            const message = chunk.text;
+            res.write(`data:${JSON.stringify({ message })}\n\n`);
+        }
+    } catch (error) {
+        if (error.name !== "AbortError") throw error;
     }
-    conversation.chats.push({ message: prompt, sender: "user" });
-    conversation.chats.push({ message: pretext, sender: "ai" });
-    await conversation.save();
-
-    if (!conversationId) {
-        const user = await User.findByIdAndUpdate(req.user._id, { $push: { conversation: conversation._id } });
-        res.write(`data: ${JSON.stringify({ conversationId: conversation._id, title: conversation.title })}\n\n`);
+    if (pretext !== "") {
+        conversation.chats.push({ message: prompt, sender: "user" });
+        conversation.chats.push({ message: pretext, sender: "ai" });
+        await conversation.save();
+        if (!conversationId) {
+            const user = await User.findByIdAndUpdate(req.user._id, { $push: { conversation: conversation._id } });
+            if (!clientDisconnected) res.write(`data:${JSON.stringify({ conversationId: conversation._id, title: conversation.title })}\n\n`);
+        }
     }
 
     res.end();

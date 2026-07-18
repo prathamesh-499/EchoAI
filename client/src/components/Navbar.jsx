@@ -4,12 +4,11 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { AuthContext } from "./AuthContext"
 import toast from "react-hot-toast";
 
-export function Navbar() {
+export function Navbar({onMenuClick}) {
     const { user, loading, setUser } = useContext(AuthContext);
     const [menuOpen, setMenuOpen] = useState(false);
     const chipRef = useRef(null);
     const navigate = useNavigate();
-
     const initials = user?.username
         ? user.username.slice(0, 2).toUpperCase()
         : null;
@@ -25,7 +24,6 @@ export function Navbar() {
             return () => document.removeEventListener("mousedown", handleClickOutside);
         }
     }, [menuOpen]);
-
     async function handleLogout() {
         setMenuOpen(false);
         try {
@@ -44,9 +42,13 @@ export function Navbar() {
             console.log(err);
         }
     }
-
     return (
         <div className="navbar-bar">
+            <button className="navbar-menu-toggle" onClick={onMenuClick} aria-label="Open menu">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+            </button>
             {!loading && (
                 user ? (
                     <div className="navbar-user-chip-wrapper" ref={chipRef}>

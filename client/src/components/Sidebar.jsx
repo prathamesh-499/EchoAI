@@ -4,14 +4,15 @@ import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-export function Sidebar({ setChats, conversationIdRef, setConversation, conversation }) {
+export function Sidebar({ setChats, conversationIdRef, setConversation, conversation, sidebarOpen, setSidebarOpen }) {
     const navigate = useNavigate();
-    const { user, loading } = useContext(AuthContext);//get login user info 
+    const { user, loading,setUser } = useContext(AuthContext);//get login user info 
     const [openMenuId, setOpenMenuId] = useState(null);//stores the id of the 3 dot toggle button that is clicked
     const [renameId, setRenameId] = useState(null);//then rename is clicked its id is stored in this
     const [renameValue, setRenameValue] = useState("");//the rename value in the input 
-    const [title,setTitle]=useState("GPT");
+    const [title, setTitle] = useState("GPT");
     const renameInputRef = useRef(null);//to make the input focus and seleted
+    const [collapsed, setCollapsed] = useState(false);
     useEffect(() => {
         if (loading || !user) return;
         const getConversation = async () => {
@@ -49,13 +50,13 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
         }
     }, [openMenuId]);
     useEffect(() => {
-    document.title = title;
-        }, [title]);
+        document.title = title;
+    }, [title]);
     const conversationMemo = useMemo(() => {
         {
             return conversation.length > 0 && (
                 <>
-            {console.log("sidebar")}
+                    {console.log("sidebar")}
 
                     <p className="sidebar-section-label">Recent</p>
                     <div className="sidebar-conversations">
@@ -68,7 +69,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
                                             ref={renameInputRef}
                                             className="conv-rename-input"
                                             value={renameValue}
-                                            onChange={e => {setRenameValue(e.target.value); console.log(renameValue)}}
+                                            onChange={e => { setRenameValue(e.target.value); console.log(renameValue) }}
                                             onBlur={() => submitRename(chat._id)}
                                             onKeyDown={e => {
                                                 if (e.key === "Enter") submitRename(chat._id);
@@ -80,7 +81,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
                                         <>
                                             <button
                                                 className="sidebar-conv-item"
-                                                onClick={() => loadChat(chat._id,chat.title)}
+                                                onClick={() => loadChat(chat._id, chat.title)}
                                             >
                                                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
                                                     <path d="M1 1h11v8H7l-3 3V9H1V1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
@@ -121,37 +122,12 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
                 </>
             )
         }
-    }, [conversation, renameId, openMenuId,renameValue]);
-
-
-    async function loadChat(id,title) {
-        try {
-            
-            const res = await fetch(`http://localhost:3000/conversation/${id}`, {
-                method: "GET",
-                credentials: "include"
-            });
-            
-            if (res.ok) {
-                const data = await res.json();
-                conversationIdRef.current = id;
-                setTitle(title);
-                setChats(data);
-            }
-            if(res.status===401){
-                toast.error("Conversion could not be loaded");
-            }
-        } catch (error) {
-            
-            console.log(error);
-        }
-    }
-
+    }, [conversation, renameId, openMenuId, renameValue]);
     function handleNewChat() {
         setChats([]);
         conversationIdRef.current = null;
+        setSidebarOpen?.(false);
     }
-
     function handleMenuToggle(id) {
         if (id !== openMenuId) {
             setOpenMenuId(id);
@@ -166,10 +142,33 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     }
     async function handleDelete(id) {
         try {
-            const res = await fetch(`http://localhost:3000/conversation/${id}`, {
+            let res = await fetch(`http://localhost:3000/conversation/${id}`, {
                 method: "DELETE",
                 credentials: "include",
             });
+            if (res.status === 401) {
+                try {
+                    const res1 = await fetch("http://localhost:3000/auth/refreshToken", {
+                        method: "GET",
+                        credentials: "include",
+                    });
+                    if (res1.ok) {
+                        const data = await res1.json();
+                        setUser(data.user);
+                        res = await fetch(`http://localhost:3000/conversation/${id}`, {
+                            method: "DELETE",
+                            credentials: "include",
+                        });
+                    }
+                    else {
+                        toast.error("Session expired, please log in again");
+                        navigate("/auth/login");
+                        return;
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
             if (res.ok) {
                 toast.success(`Chat deleted`);
             }
@@ -178,16 +177,18 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
 
             console.log(err);
         }
+        finally{
+            setOpenMenuId(null);
+        }
         if (conversationIdRef.current == id) {
             conversationIdRef.current = null;
             setChats([]);
         }
-        setOpenMenuId(null);
         setConversation(pre => pre.filter(conv => conv._id !== id));
     }
     async function submitRename(id) {
         try {
-            const res = await fetch(`http://localhost:3000/conversation/${id}/rename`, {
+            let res = await fetch(`http://localhost:3000/conversation/${id}/rename`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -195,6 +196,33 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
                     renameValue: renameValue.trim()
                 })
             });
+            if (res.status === 401) {
+                try {
+                    const res1 = await fetch("http://localhost:3000/auth/refreshToken", {
+                        method: "GET",
+                        credentials: "include",
+                    });
+                    if (res1.ok) {
+                        const data = await res1.json();
+                        setUser(data.user);
+                        res = await fetch(`http://localhost:3000/conversation/${id}/rename`, {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                renameValue: renameValue.trim()
+                            })
+                        });
+                    }
+                    else {
+                        toast.error("Session expired, please log in again");
+                        navigate("/auth/login");
+                        return;
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         } catch (err) {
             toast.error(`Chat could not be renamed`);
             console.log(err);
@@ -213,24 +241,79 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
 
 
     }
+    async function loadChat(id, title) {
+        try {
 
+            let res = await fetch(`http://localhost:3000/conversation/${id}`, {
+                method: "GET",
+                credentials: "include"
+            });
+            if (res.status === 401) {
+                try {
+                    const res1 = await fetch("http://localhost:3000/auth/refreshToken", {
+                        method: "GET",
+                        credentials: "include",
+                    });
+                    if (res1.ok) {
+                        const data = await res1.json();
+                        setUser(data.user);
+                        res = await fetch(`http://localhost:3000/conversation/${id}`, {
+                            method: "GET",
+                            credentials: "include"
+                        });
+                    }
+                    else {
+                        toast.error("Session expired, please log in again");
+                        navigate("/auth/login");
+                        return;
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            if (res.ok) {
+                const data = await res.json();
+                conversationIdRef.current = id;
+                setTitle(title);
+                setChats(data);
+            }
 
+        } catch (error) {
+
+            console.log(error);
+        }
+    }
 
     return (
+        <div className={`sidebar ${collapsed ? "sidebar--collapsed" : ""} ${sidebarOpen ? "sidebar--mobile-open" : ""}`}>
+            <div className="sidebar-top">
+                {!collapsed && <h4 className="brandName" style={{ marginRight: "auto", marginBottom: "0px", color: "#600495", fontWeight: "bold" }}>EchoAi</h4>}
+                <button
+                    className="sidebar-toggle-btn"
+                    onClick={() => setCollapsed(prev => !prev)}
+                    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        {collapsed ? (
+                            <path d="M5.5 3.5L9.5 7.5L5.5 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        ) : (
+                            <path d="M9.5 3.5L5.5 7.5L9.5 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        )}
+                    </svg>
+                </button>
+            </div>
 
-        <div className="sidebar">
             <div className="sidebar-actions">
-                <button className="sidebar-btn sidebar-btn--new" onClick={handleNewChat}>
+                <button className="sidebar-btn sidebar-btn--new" onClick={handleNewChat} title="New chat">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                     </svg>
-                    New chat
+                    {!collapsed && "New chat"}
                 </button>
             </div>
 
             <div className="sidebar-divider" />
-            {conversationMemo}
-
+            {!collapsed && conversationMemo}
         </div>
     );
 }

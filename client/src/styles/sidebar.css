@@ -1,6 +1,7 @@
 /* ── Layout ───────────────────────────────────────────── */
 .sidebar {
     width: 220px;
+    transition: width 0.18s ease;
     height: 100vh;
     background: #0d0d0d;
     border-right: 0.5px solid #2a2a2a;
@@ -10,7 +11,9 @@
     flex-shrink: 0;
 
     overflow-y: auto;
-    overflow-x: hidden; /* prevents horizontal scrolling */
+    overflow-x: hidden;
+    /* prevents horizontal scrolling */
+    overflow: hidden;
 }
 
 .sidebar-actions {
@@ -19,6 +22,7 @@
     flex-direction: column;
     gap: 4px;
 }
+
 .conv-title {
     position: relative;
     white-space: nowrap;
@@ -57,15 +61,18 @@
     width: 100%;
     transition: background 0.15s, color 0.15s;
 }
+
 .sidebar-btn:hover {
     background: #1e1e1e;
     color: #ddd;
 }
+
 .sidebar-btn--new {
     border: 0.5px solid #333;
     color: #ccc;
     background: #161616;
 }
+
 .sidebar-btn--new:hover {
     background: #252525;
     color: #fff;
@@ -95,8 +102,15 @@
     scrollbar-width: thin;
     scrollbar-color: #2a2a2a transparent;
 }
-.sidebar-conversations::-webkit-scrollbar { width: 3px; }
-.sidebar-conversations::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+
+.sidebar-conversations::-webkit-scrollbar {
+    width: 3px;
+}
+
+.sidebar-conversations::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 3px;
+}
 
 .sidebar-conv-item {
     display: flex;
@@ -116,20 +130,24 @@
     min-width: 0;
 
 }
+
 .sidebar-conv-item:hover {
     background: #1a1a1a;
     color: white;
 }
+
 .sidebar-conv-item svg {
     flex-shrink: 0;
     opacity: 0.5;
 }
+
 .sidebar-conv-item span {
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .conv-item-wrapper {
     position: relative;
     display: flex;
@@ -155,9 +173,11 @@
     transition: opacity 0.15s, background 0.15s, color 0.15s;
     padding: 0;
 }
+
 .conv-item-wrapper:hover .conv-menu-btn {
     opacity: 1;
 }
+
 .conv-menu-btn:hover {
     background: #2a2a2a;
     color: #ccc;
@@ -192,11 +212,16 @@
     text-align: left;
     transition: background 0.15s, color 0.15s;
 }
+
 .conv-menu-item:hover {
     background: #2a2a2a;
     color: #ddd;
 }
-.conv-menu-item--delete { color: #c47a7a; }
+
+.conv-menu-item--delete {
+    color: #c47a7a;
+}
+
 .conv-menu-item--delete:hover {
     background: #2e1a1a;
     color: #e08080;
@@ -213,13 +238,15 @@
     font-size: 13px;
     outline: none;
 }
+
 .conv-rename-input:focus {
     border-color: #6666aa;
 }
+
 .sidebar {
-    width: 220px;
     transition: width 0.18s ease;
 }
+
 .sidebar--collapsed {
     width: 56px;
 }
@@ -228,9 +255,6 @@
     display: flex;
     justify-content: flex-end;
     padding: 0 10px 8px;
-}
-.sidebar--collapsed .sidebar-top {
-    justify-content: center;
 }
 
 .sidebar-toggle-btn {
@@ -256,4 +280,44 @@
 .sidebar--collapsed .sidebar-btn--new {
     justify-content: center;
     padding: 8px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100dvh;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+        z-index: 200;
+        box-shadow: 2px 0 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar--mobile-open {
+        transform: translateX(0);
+    }
+}
+
+.sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 150;
+    }
+
+    .sidebar-toggle-btn {
+        display: none;
+    }
+
+    .brandName {
+        display: none;
+    }
 }

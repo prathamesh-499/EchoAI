@@ -1,35 +1,58 @@
-import React from 'react'
+import React, { useState } from 'react'
 import "../styles/chat.css"
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+function CodeBlock({ children }) {
+    const [copied, setCopied] = useState(false);
+    const language = children?.props?.className?.replace("language-", "") || "";
+    const handleCopy = () => {
+        const code = children?.props?.children;
+        const text = typeof code === "string" ? code : String(code).replace(/\n$/, "");
+        navigator.clipboard.writeText(text).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    };
+    return (
+        <div className="code-block">
+            <div className="code-block-header">
+                <span className="code-language">{language || "code"}</span>
+                <button className="copy-btn" onClick={handleCopy} >
+                    {copied ? "Copied!" : "Copy"}
+                </button>
+            </div>
+            {children}
+        </div>
+    );
+}
 export default function Chat({ message, sender }) {
-	return (
-
-		<div className={` w-75 m-auto p-2 d-flex flex-wrap flex-row ${sender === "user" ? "justify-content-end bg-black" : "justify-content-start"}`}>
-			<div className="markdown-body ">
-				<ReactMarkdown
-					components={{
-						pre({ children }) {
-							return <div className="code-block">{children}</div>;
-						},
-						code({ className, children }) {
-							const language = className?.replace("language-", "") || "";
-							const isBlock = Boolean(language); // language class is ONLY on fenced code blocks
-
-							return isBlock ? (
-								<SyntaxHighlighter style={oneDark} language={language} PreTag="div">
-									{String(children).replace(/\n$/, "")}
-								</SyntaxHighlighter>
-							) : (
-								<code className={className}>{children}</code>
-							);
-						},
-					}}
-				>
-					{message}
-				</ReactMarkdown>
-			</div>
-		</div>
-	)
+    const isUser = sender === "user";
+    return (
+        <div className={`chat-row ${isUser ? "chat-row--user" : ""}`}>
+            <div className={`chat-bubble ${isUser ? "chat-bubble--user" : "chat-bubble--ai"}`}>
+                <ReactMarkdown
+                    components={{
+                        pre({ children }) {
+                            return <CodeBlock>{children}</CodeBlock>;
+                        },
+                        code({ className, children }) {
+                            const language = className?.replace("language-", "") || "";
+                            const isBlock = Boolean(language);
+                            return isBlock ? (
+                                <SyntaxHighlighter style={oneDark} language={language} PreTag="div"  customStyle={{ margin: 0, borderRadius: 0 }}>
+                                    {String(children).replace(/\n$/, "")}
+                                </SyntaxHighlighter>
+                            ) : (
+                                <code className="inline-code">{children}</code>
+                            );
+                        },
+                    }}
+                >
+                    
+                    {message}
+                </ReactMarkdown>
+            </div>
+        </div>
+    );
 }

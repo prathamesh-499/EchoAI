@@ -9,7 +9,7 @@ export const showConversation=asyncWrapper(async(req,res,next)=>{
         return next(new ApiError(404,"Conversation not found"));
     }
     if(!conversation.owner.equals(req.user._id)){
-        return next(new ApiError(401,"Unauthorized"));
+        return next(new ApiError(403,"Forbidden"));
     }
     return res.json(conversation.chats);
 });

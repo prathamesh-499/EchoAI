@@ -12,3 +12,10 @@
     overflow: hidden;
     min-width: 0;
 }
+.home-layout {
+    display: flex;
+    height: 100vh;
+    height: 100dvh; /* overridden where supported, ignored where not */
+    overflow: hidden;
+    background: #1a1a1a;
+}
