@@ -86,6 +86,12 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                         console.log(error);
                     }
                 }
+                if (res.status === 429) {
+                    toast.error(res.message);
+                    setMessage(tempPrompt);
+                    setLoading(false);
+                    return;
+                }
 
                 if (res.ok) {
                     setChats((prev) => [...prev, { sender: "ai", message: "" }]);
@@ -156,7 +162,10 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
             <div className="chats-body">
                 {chats.length === 0 ? (
                     <div className="chats-empty">
-                        <div className="chats-empty-icon">✦</div>
+                        <svg viewBox="0 0 200 200" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                            <path fillRule="evenodd" fill="#600495" d="M100,20 a80,80 0 1,0 0.1,0 Z M100,50 a50,50 0 1,1 -0.1,0 Z" />
+                        </svg>
+
                         <h2 className="chats-empty-title">What can I help with?</h2>
                         <p className="chats-empty-sub">Ask anything — I'm here to help.</p>
                     </div>

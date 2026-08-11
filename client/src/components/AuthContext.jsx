@@ -7,8 +7,8 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchUser = async () => {
-
             try {
+                
                 const res = await fetch("http://localhost:3000/auth/me", {
                     method: "GET",
                     credentials: "include",

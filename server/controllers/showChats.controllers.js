@@ -1,7 +1,7 @@
 import { asyncWrapper } from "../middleware/asyncWrapper.js";
 import { Conversation } from "../models/conversation.js";
 import { ApiError } from "../util/ApiError.js";
-export const showConversation=asyncWrapper(async(req,res,next)=>{
+export const showChats=asyncWrapper(async(req,res,next)=>{
     
     const {id}=req.params;
     const conversation=await Conversation.findById(id);

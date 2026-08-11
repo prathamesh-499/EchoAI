@@ -33,7 +33,7 @@ export function Navbar({onMenuClick}) {
             });
             if (res.ok) {
                 setUser(null);
-                navigate("/auth/login");
+                navigate(0);
             } else {
                 toast.error("Logout failed");
             }

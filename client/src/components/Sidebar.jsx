@@ -10,7 +10,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     const [openMenuId, setOpenMenuId] = useState(null);//stores the id of the 3 dot toggle button that is clicked
     const [renameId, setRenameId] = useState(null);//then rename is clicked its id is stored in this
     const [renameValue, setRenameValue] = useState("");//the rename value in the input 
-    const [title, setTitle] = useState("GPT");
+    const [title, setTitle] = useState("Echo");
     const renameInputRef = useRef(null);//to make the input focus and seleted
     const [collapsed, setCollapsed] = useState(false);
     useEffect(() => {
@@ -49,7 +49,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
             return () => document.removeEventListener("mousedown", handleClickOutside);
         }
     }, [openMenuId]);
-    useEffect(() => {
+    useEffect(() => {//change document title
         document.title = title;
     }, [title]);
     const conversationMemo = useMemo(() => {
@@ -125,6 +125,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     }, [conversation, renameId, openMenuId, renameValue]);
     function handleNewChat() {
         setChats([]);
+        setTitle("Echo");
         conversationIdRef.current = null;
         setSidebarOpen?.(false);
     }

@@ -31,11 +31,7 @@
     gap: 10px;
     padding: 40px 20px;
 }
-.chats-empty-icon {
-    font-size: 30px;
-    color: #600495;
-    line-height: 1;
-}
+
 .chats-empty-title {
     font-size: 20px;
     font-weight: 400;

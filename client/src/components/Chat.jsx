@@ -31,7 +31,7 @@ export default function Chat({ message, sender }) {
     return (
         <div className={`chat-row ${isUser ? "chat-row--user" : ""}`}>
             <div className={`chat-bubble ${isUser ? "chat-bubble--user" : "chat-bubble--ai"}`}>
-                <ReactMarkdown
+                {!isUser ? <ReactMarkdown
                     components={{
                         pre({ children }) {
                             return <CodeBlock>{children}</CodeBlock>;
@@ -40,7 +40,7 @@ export default function Chat({ message, sender }) {
                             const language = className?.replace("language-", "") || "";
                             const isBlock = Boolean(language);
                             return isBlock ? (
-                                <SyntaxHighlighter style={oneDark} language={language} PreTag="div"  customStyle={{ margin: 0, borderRadius: 0 }}>
+                                <SyntaxHighlighter style={oneDark} language={language} PreTag="div" customStyle={{ margin: 0, borderRadius: 0 }}>
                                     {String(children).replace(/\n$/, "")}
                                 </SyntaxHighlighter>
                             ) : (
@@ -49,9 +49,9 @@ export default function Chat({ message, sender }) {
                         },
                     }}
                 >
-                    
+
                     {message}
-                </ReactMarkdown>
+                </ReactMarkdown> : message}
             </div>
         </div>
     );

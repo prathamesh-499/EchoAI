@@ -3,10 +3,12 @@ import { Conversation } from "../models/conversation.js"
 import { ApiError } from "../util/ApiError.js"
 import { asyncWrapper } from "../middleware/asyncWrapper.js"
 import { User } from "../models/user.js";
+import { geminiAiTitle } from "./geminiApiGetTitle.js";
 const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
 export const geminiAi = asyncWrapper(async (req, res, next) => {
-    let clientDisconnected = false;
+
+    let clientDisconnected = false,isNewChat=false,titleTotalTokenCount=0;
     const abortController = new AbortController();
     res.on("close", () => {
         abortController.abort();
@@ -23,14 +25,17 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
 
     } else {
         if (clientDisconnected) return;
-        const title = await geminiAiTitle(prompt);
+        isNewChat=true;
+        const [title,tokenCount] = await geminiAiTitle(prompt);
+        titleTotalTokenCount=tokenCount;
         conversation = new Conversation({
             title: title,
             chats: [],
             owner: req.user._id
         });
     }
-
+    
+    console.log(titleTotalTokenCount);
     const chat = ai.chats.create({
         model: "gemini-3.1-flash-lite",
         history:
@@ -47,12 +52,17 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
     res.flushHeaders();
     const stream1 = await chat.sendMessageStream({
         message: prompt,
-        config: { abortSignal: abortController.signal }
+        config: {
+            abortSignal: abortController.signal,
+            maxOutputTokens: 40_000
+        }
     });
-    let pretext = "";
+    let pretext = "",tokenSpend=0;
     try {
         for await (const chunk of stream1) {
             if (clientDisconnected) break;
+            // console.log(chunk);
+            tokenSpend=chunk?.usageMetadata?.totalTokenCount;
             pretext += chunk.text;
             const message = chunk.text;
             res.write(`data:${JSON.stringify({ message })}\n\n`);
@@ -69,14 +79,11 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
             if (!clientDisconnected) res.write(`data:${JSON.stringify({ conversationId: conversation._id, title: conversation.title })}\n\n`);
         }
     }
-
+    if(tokenSpend===undefined)tokenSpend=0;
+    req.tokenSpend=tokenSpend+titleTotalTokenCount;
+    req.isNewChat=isNewChat;
     res.end();
+    next();
+
 });
 
-export const geminiAiTitle = async (prompt) => {
-    const response = await ai.models.generateContent({
-        model: "gemini-3.1-flash-lite",
-        contents: `Give title for this conversation just title say nothing else and try to keep it small"${prompt}"`,
-    });
-    return response.text;
-}
