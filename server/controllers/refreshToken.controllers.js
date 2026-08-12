@@ -14,7 +14,6 @@ export const refreshToken = asyncWrapper(async (req, res, next) => {
             return next(new ApiError(401, "no user"));
         }
         if (token !== user.refreshToken) {
-            console.log(token)
             return next(new ApiError(401, "db not match"));
         }
         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user);

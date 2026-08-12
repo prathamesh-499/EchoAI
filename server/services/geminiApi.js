@@ -35,7 +35,6 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
         });
     }
     
-    console.log(titleTotalTokenCount);
     const chat = ai.chats.create({
         model: "gemini-3.1-flash-lite",
         history:
@@ -61,7 +60,6 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
     try {
         for await (const chunk of stream1) {
             if (clientDisconnected) break;
-            // console.log(chunk);
             tokenSpend=chunk?.usageMetadata?.totalTokenCount;
             pretext += chunk.text;
             const message = chunk.text;
@@ -81,6 +79,7 @@ export const geminiAi = asyncWrapper(async (req, res, next) => {
     }
     if(tokenSpend===undefined)tokenSpend=0;
     req.tokenSpend=tokenSpend+titleTotalTokenCount;
+    console.log("Token cost",req.tokenSpend);
     req.isNewChat=isNewChat;
     res.end();
     next();

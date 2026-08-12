@@ -29,7 +29,6 @@ function checkGeminiQuota(req, res, next) {
     resetKeysIfTimesUp();
     currentTime.minute.count++;
     currentTime.day.count++;
-    console.log(currentTime.minute.tokens);
     if (currentTime.minute.count > SAFE_LIMITS.rpm) {
         return res.status(429).json({ error: 'Too many requests this minute. Wait a moment.' });
     }

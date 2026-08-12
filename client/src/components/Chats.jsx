@@ -102,7 +102,6 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                         const { done, value } = await reader.read();
                         if (done) break;
                         const raw = decoder.decode(value);
-                        console.log(raw);
                         const lines = raw.split("\n").filter((l) => l.startsWith("data:"));
                         for (const line of lines) {
                             const json = JSON.parse(line.replace("data:", "").trim());

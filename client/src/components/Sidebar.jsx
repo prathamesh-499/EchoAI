@@ -56,7 +56,6 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
         {
             return conversation.length > 0 && (
                 <>
-                    {console.log("sidebar")}
 
                     <p className="sidebar-section-label">Recent</p>
                     <div className="sidebar-conversations">
@@ -69,7 +68,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
                                             ref={renameInputRef}
                                             className="conv-rename-input"
                                             value={renameValue}
-                                            onChange={e => { setRenameValue(e.target.value); console.log(renameValue) }}
+                                            onChange={e => { setRenameValue(e.target.value);}}
                                             onBlur={() => submitRename(chat._id)}
                                             onKeyDown={e => {
                                                 if (e.key === "Enter") submitRename(chat._id);
