@@ -41,11 +41,11 @@ export const refreshToken = asyncWrapper(async (req, res, next) => {
             },
         });
     } catch (error) {
-        // res.clearCookie("refreshToken", {
-        //     httpOnly: true,
-        //     secure: true,
-        //     path: "/auth/refreshToken"
-        // });
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            path: "/auth/refreshToken"
+        });
         return next(new ApiError(401, error));
     }
 

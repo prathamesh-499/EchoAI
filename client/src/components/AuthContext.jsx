@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
         const fetchUser = async () => {
             try {
                 
-                const res = await fetch("http://localhost:3000/auth/me", {
+                const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/me`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
                 }
                 if (res.status === 401) {
                     try {
-                        const res = await fetch("http://localhost:3000/auth/refreshToken", {
+                        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/refreshToken`, {
                             method: "GET",
                             credentials: "include",
                         });

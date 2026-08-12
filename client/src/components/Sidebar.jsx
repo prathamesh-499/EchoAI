@@ -17,7 +17,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
         if (loading || !user) return;
         const getConversation = async () => {
             try {
-                const res = await fetch("http://localhost:3000/conversation", {
+                const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -143,20 +143,20 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     }
     async function handleDelete(id) {
         try {
-            let res = await fetch(`http://localhost:3000/conversation/${id}`, {
+            let res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation/${id}`, {
                 method: "DELETE",
                 credentials: "include",
             });
             if (res.status === 401) {
                 try {
-                    const res1 = await fetch("http://localhost:3000/auth/refreshToken", {
+                    const res1 = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/refreshToken`, {
                         method: "GET",
                         credentials: "include",
                     });
                     if (res1.ok) {
                         const data = await res1.json();
                         setUser(data.user);
-                        res = await fetch(`http://localhost:3000/conversation/${id}`, {
+                        res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation/${id}`, {
                             method: "DELETE",
                             credentials: "include",
                         });
@@ -189,7 +189,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     }
     async function submitRename(id) {
         try {
-            let res = await fetch(`http://localhost:3000/conversation/${id}/rename`, {
+            let res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation/${id}/rename`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -199,14 +199,14 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
             });
             if (res.status === 401) {
                 try {
-                    const res1 = await fetch("http://localhost:3000/auth/refreshToken", {
+                    const res1 = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/refreshToken`, {
                         method: "GET",
                         credentials: "include",
                     });
                     if (res1.ok) {
                         const data = await res1.json();
                         setUser(data.user);
-                        res = await fetch(`http://localhost:3000/conversation/${id}/rename`, {
+                        res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation/${id}/rename`, {
                             method: "POST",
                             credentials: "include",
                             headers: { "Content-Type": "application/json" },
@@ -245,20 +245,20 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     async function loadChat(id, title) {
         try {
 
-            let res = await fetch(`http://localhost:3000/conversation/${id}`, {
+            let res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation/${id}`, {
                 method: "GET",
                 credentials: "include"
             });
             if (res.status === 401) {
                 try {
-                    const res1 = await fetch("http://localhost:3000/auth/refreshToken", {
+                    const res1 = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/refreshToken`, {
                         method: "GET",
                         credentials: "include",
                     });
                     if (res1.ok) {
                         const data = await res1.json();
                         setUser(data.user);
-                        res = await fetch(`http://localhost:3000/conversation/${id}`, {
+                        res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation/${id}`, {
                             method: "GET",
                             credentials: "include"
                         });
@@ -288,7 +288,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     return (
         <div className={`sidebar ${collapsed ? "sidebar--collapsed" : ""} ${sidebarOpen ? "sidebar--mobile-open" : ""}`}>
             <div className="sidebar-top">
-                {!collapsed && <h4 className="brandName" style={{ marginRight: "auto", marginBottom: "0px", color: "#600495", fontWeight: "bold" }}>EchoAi</h4>}
+                {!collapsed && <h4 className="brandName" onClick={()=>{navigate(0);}} style={{ marginRight: "auto", marginBottom: "0px",cursor:"pointer",color: "#600495", fontWeight: "bold" }}>EchoAi</h4>}
                 <button
                     className="sidebar-toggle-btn"
                     onClick={() => setCollapsed(prev => !prev)}

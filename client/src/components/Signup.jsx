@@ -20,7 +20,7 @@ export const Signup = function () {
         if(password.trim()===""){
             return setSignUpError("Password is required");
         };
-        const res = await fetch('http://localhost:3000/auth/signup', {
+        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/signup`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },

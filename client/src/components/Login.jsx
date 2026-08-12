@@ -17,7 +17,7 @@ export function Login() {
         if(password.trim()===""){
             return setLoginError("password is required");
         };
-        const res = await fetch('http://localhost:3000/auth/login', {
+        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/login`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },

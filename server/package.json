@@ -1,12 +1,15 @@
 {
+  "engines": {
+    "node": "22.23.2"
+  },
   "name": "gpt",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --env-file=.env --watch app.js",
-    "start": "nodemon --env-file=.env app.js"
+    "dev": "node --env-file=.env --watch app.js",
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,8 +22,5 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.14"
   }
 }

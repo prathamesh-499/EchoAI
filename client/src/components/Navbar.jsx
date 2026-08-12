@@ -27,7 +27,7 @@ export function Navbar({onMenuClick}) {
     async function handleLogout() {
         setMenuOpen(false);
         try {
-            const res = await fetch("http://localhost:3000/auth/logout", {
+            const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, {
                 method: "POST",
                 credentials: "include",
             });

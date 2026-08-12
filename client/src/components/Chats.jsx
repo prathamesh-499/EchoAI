@@ -47,7 +47,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
         }
         if (user) {
             try {
-                let res = await fetch("http://localhost:3000/conversation", {
+                let res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation`, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -59,14 +59,14 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                 });
                 if (res.status === 401) {
                     try {
-                        const res1 = await fetch("http://localhost:3000/auth/refreshToken", {
+                        const res1 = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/refreshToken`, {
                             method: "GET",
                             credentials: "include",
                         });
                         if (res1.ok) {
                             const data = await res1.json();
                             setUser(data.user);
-                            res = await fetch("http://localhost:3000/conversation", {
+                            res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation`, {
                                 method: "POST",
                                 credentials: "include",
                                 headers: { "Content-Type": "application/json" },
@@ -137,7 +137,9 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
             }
             finally {
                 abortControllerRef.current = null;
-                setLoading(false);
+                setTimeout(() => {//if there is a message in textarea and i click stop generation button it submit the text to fix that
+                    setLoading(false);
+                }, 1);
             }
         }
         else {
