@@ -9,7 +9,7 @@ const app =express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-	origin: 'https://echoai-97f4.onrender.com/',
+	origin: 'https://echoai-97f4.onrender.com',
 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
 	credentials: true
 }));
