@@ -23,12 +23,16 @@ export const refreshToken = asyncWrapper(async (req, res, next) => {
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            path: "/"
+            path: "/",
+            sameSite: 'none'
+
         });
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            path: "/auth/refreshToken"
+            path: "/auth/refreshToken",
+            sameSite: 'none'
+
         });
 
         return res.json({
@@ -44,7 +48,8 @@ export const refreshToken = asyncWrapper(async (req, res, next) => {
         res.clearCookie("refreshToken", {
             httpOnly: true,
             secure: true,
-            path: "/auth/refreshToken"
+            path: "/auth/refreshToken",
+            sameSite: 'none'
         });
         return next(new ApiError(401, error));
     }

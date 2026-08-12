@@ -1,17 +1,17 @@
 import { asyncWrapper } from "../middleware/asyncWrapper.js"
 import { User } from "../models/user.js"
 import { ApiError } from "../util/ApiError.js";
-import {generateAccessAndRefreshToken} from "../util/generateAccessAndRefreshToken.js"
+import { generateAccessAndRefreshToken } from "../util/generateAccessAndRefreshToken.js"
 
 
-export const signup = asyncWrapper(async (req, res,next) => {
+export const signup = asyncWrapper(async (req, res, next) => {
     const { username, password, email } = req.body;
-    const existUser =await User.findOne({$or:[{username},{email}]});
-    if(existUser){
-        if(existUser.username===username){
-            return next(new ApiError(406 ,"Username Exist"));
+    const existUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existUser) {
+        if (existUser.username === username) {
+            return next(new ApiError(406, "Username Exist"));
         }
-        return next(new ApiError(406 ,"Email Exist"));
+        return next(new ApiError(406, "Email Exist"));
 
     }
     const user = new User({
@@ -19,19 +19,23 @@ export const signup = asyncWrapper(async (req, res,next) => {
         password: password,
         email: email,
     });
-    const { accessToken, refreshToken } =await generateAccessAndRefreshToken(user);
-    user.refreshToken=refreshToken;
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user);
+    user.refreshToken = refreshToken;
     await user.save();
-    
+
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        path: "/"
+        path: "/",
+        sameSite: 'none'
+
     });
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        path: "/auth/refreshToken"
+        path: "/auth/refreshToken",
+        sameSite: 'none'
+
     });
     res.json({
         success: true,

@@ -19,12 +19,16 @@ export const login = asyncWrapper(async (req, res, next) => {
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        path: "/"
+        path: "/",
+        sameSite: 'none'
+
     });
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        path: "/auth/refreshToken"
+        path: "/auth/refreshToken",
+        sameSite: 'none'
+
     });
     res.json({
         success: true,
