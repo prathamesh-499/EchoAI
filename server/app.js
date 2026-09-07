@@ -9,7 +9,7 @@ const app =express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-	origin: 'https://echoai-97f4.onrender.com',
+	origin: 'http://localhost:5173',
 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
 	credentials: true
 }));
@@ -20,7 +20,7 @@ app.use(cors({
 	}
 	catch(err){
 		console.log(err);
-		res.status(500).send(err.message);
+		// res.status(500).send(err.message);
 	}
     app.listen(3000, () => {
 		console.log('Server is running')

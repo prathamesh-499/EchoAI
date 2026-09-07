@@ -10,6 +10,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
     const { user, setUser } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const [model, setModel] = useState(() => localStorage.getItem("echoai-model") || "gemini");
     const chatBottomRef = useRef(null);
     const textareaRef = useRef(null);
     const abortControllerRef = useRef(null);
@@ -54,6 +55,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                     body: JSON.stringify({
                         conversationId: conversationIdRef.current,
                         prompt: tempPrompt,
+                        model,
                     }),
                     signal: controller.signal,
                 });
@@ -73,6 +75,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                                 body: JSON.stringify({
                                     conversationId: conversationIdRef.current,
                                     prompt: tempPrompt,
+                                    model,
                                 }),
                                 signal: controller.signal,
                             });
@@ -151,6 +154,9 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
         abortControllerRef.current?.abort();
     }
     return (
+        
+
+
         <div className="chats-page">
             <Toaster
                 toastOptions={{
@@ -158,7 +164,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                         style: { background: "#1e1e1e", color: "#fff", border: "0.5px solid #333" },
                     },
                 }}
-            />
+                />
 
             <div className="chats-body">
                 {chats.length === 0 ? (
@@ -196,6 +202,19 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                             rows={1}
 
                         />
+                        <select
+                            className="chats-model-select"
+                            value={model}
+                            onChange={(e) => {
+                                setModel(e.target.value);
+                                localStorage.setItem("echoai-model", e.target.value);
+                            }}
+                            disabled={loading}
+                            aria-label="AI model"
+                        >
+                            <option value="gemini">Gemini</option>
+                            <option value="groq">Groq</option>
+                        </select>
                         <button
                             type={loading ? "button" : "submit"}
                             onClick={loading ? stopGeneration : undefined}

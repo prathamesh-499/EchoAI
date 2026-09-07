@@ -23,14 +23,15 @@ export const refreshToken = asyncWrapper(async (req, res, next) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/",
-            sameSite: 'none'
-
+        sameSite:process.env.NODE_ENV === "production"?'none': 'lax',
+        maxAge:1800000
         });
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             path: "/auth/refreshToken",
-            sameSite: 'none'
+        sameSite:process.env.NODE_ENV === "production"?'none': 'lax',
+        maxAge:1800000*2*24*30
 
         });
 
@@ -48,7 +49,6 @@ export const refreshToken = asyncWrapper(async (req, res, next) => {
             httpOnly: true,
             secure: true,
             path: "/auth/refreshToken",
-            sameSite: 'none'
         });
         return next(new ApiError(401, error));
     }

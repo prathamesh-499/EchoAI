@@ -13,13 +13,11 @@ export const logout = asyncWrapper(async (req, res, next) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         path: "/auth/refreshToken",
-        sameSite: 'none'
 
     });
     res.clearCookie("accessToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: 'none'
 
     });
     res.json({

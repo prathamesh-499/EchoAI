@@ -98,6 +98,25 @@
     padding: 10px 10px 10px 16px;
     transition: border-color 0.2s;
 }
+.chats-model-select {
+    align-self: flex-end;
+    height: 34px;
+    max-width: 110px;
+    padding: 0 8px;
+    border-radius: 9px;
+    border: none;
+    background: #222;
+    color: #c8c8e0;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    flex-shrink: 0;
+}
+.chats-model-select:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
 
 .chats-input-box textarea {
   overflow: auto;
