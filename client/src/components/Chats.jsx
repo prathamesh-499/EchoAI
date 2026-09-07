@@ -90,7 +90,8 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                     }
                 }
                 if (res.status === 429) {
-                    toast.error(res.message);
+                    const data = await res.json().catch(() => ({}));
+                    toast.error(data.error || "Rate limit reached. Please wait a moment.");
                     setMessage(tempPrompt);
                     setLoading(false);
                     return;

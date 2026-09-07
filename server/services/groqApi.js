@@ -83,8 +83,9 @@ export const groqApi = asyncWrapper(async (req, res, next) => {
         }
     }
     if (tokenSpend === undefined) tokenSpend = 0;
-    req.tokenSpend = tokenSpend + titleTotalTokenCount;
-    console.log("Token cost", req.tokenSpend);
+    req.tokenSpend = tokenSpend;
+    req.titleTokenSpend = titleTotalTokenCount || 0;
+    console.log("Groq Token cost:", req.tokenSpend, "| Gemini 3.1 Title Token cost:", req.titleTokenSpend);
     req.isNewChat = isNewChat;
     res.end();
     next();
