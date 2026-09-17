@@ -9,6 +9,7 @@ export function Login() {
     const [password, setPassword] = useState("");
     const{setUser}=useContext(AuthContext);
     const [loginError,setLoginError]=useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit =async (e) => {
         e.preventDefault();
         if(username.trim()===""){
@@ -17,25 +18,29 @@ export function Login() {
         if(password.trim()===""){
             return setLoginError("password is required");
         };
-        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/login`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data=await res.json();
-        
-        if(res.ok){
-            toast.success(`Welcome ${username}`);
-            setUser(data.user);
-            navigate("/",{ replace: true });
-        }else{
-            toast.error("Login Failed");
-            if(data.error=="Invalid credentials"){
-                setLoginError(data.error);
+        setIsSubmitting(true);
+        try {
+            const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/login`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data=await res.json();
+            if(res.ok){
+                toast.success(`Welcome ${username}`);
+                setUser(data.user);
+                navigate("/",{ replace: true });
+            }else{
+                toast.error("Login Failed");
+                setLoginError(data.error || "Login failed");
             }
+        } catch {
+            setLoginError("Unable to reach the server");
+            toast.error("Login failed");
+        } finally {
+            setIsSubmitting(false);
         }
-
     }
     return (
         <div className="bg-dark vh-100 d-flex justify-content-center align-items-center">
@@ -67,7 +72,7 @@ export function Login() {
                             type="text"
                             placeholder="Username or Email"
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting}
                         />
                     </div>
 
@@ -77,15 +82,16 @@ export function Login() {
                             type="password"
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting}
                         />
                     </div>
 
                     <button
                         className="btn btn-primary w-100 py-2"
                         type="submit"
+                        disabled={isSubmitting}
                     >
-                        Login
+                        {isSubmitting ? <><span className="spinner-border spinner-border-sm me-2" />Logging in…</> : "Login"}
                     </button>
                 </form>
 

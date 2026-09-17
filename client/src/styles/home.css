@@ -12,6 +12,27 @@
     overflow: hidden;
     min-width: 0;
 }
+
+.session-loading {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #1a1a1a;
+    color: #a8a8a8;
+    font-size: 14px;
+}
+
+.session-loading .spinner-border {
+    color: #8888cc;
+}
+
+.session-loading p {
+    margin: 0;
+}
 .home-layout {
     display: flex;
     height: 100vh;

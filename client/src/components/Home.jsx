@@ -1,14 +1,24 @@
-import React from 'react'
 import { Sidebar } from "./Sidebar";
 import { Navbar } from "./Navbar";
 import { Chats } from "./Chats";
-import { useState, useRef } from 'react';
+import { useContext, useRef, useState } from 'react';
+import { AuthContext } from "./AuthContext";
 import "../styles/home.css"
 export const Home = function () {
+    const { loading } = useContext(AuthContext);
     const conversationIdRef = useRef(null);
     const [conversation, setConversation] = useState([]);//user conversations
     const [chats, setChats] = useState([]);
     const [sidebarOpen, setSidebarOpen] = useState(false); // mobile drawer
+
+    if (loading) {
+        return (
+            <main className="session-loading" aria-live="polite">
+                <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+                <p>Loading your chats…</p>
+            </main>
+        );
+    }
 
     return (
         <div className="home-layout">

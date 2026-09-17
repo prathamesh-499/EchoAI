@@ -7,6 +7,7 @@ export const Signup = function () {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleSubmit = async(e) => {
         e.preventDefault();
         if(email.trim()===""){
@@ -18,19 +19,24 @@ export const Signup = function () {
         if(password.trim()===""){
             return setSignUpError("Password is required");
         };
-        const emailRes = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/verify-email`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, username, password })
-        });
-        const emailData=await emailRes.json();
-        if(emailRes.ok){
-            toast.success("Verification email sent!");
-            navigate("/auth/email-verification", { replace: true, state: { email } });
-        }else{
-            console.error(emailData);
-            setSignUpError(emailData.error || "Verification email could not be sent");
-            return toast.error("Verification email could not be sent!");
+        setIsSubmitting(true);
+        try {
+            const emailRes = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/verify-email`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, username, password })
+            });
+            const emailData=await emailRes.json();
+            if(emailRes.ok){
+                toast.success("Verification email sent!");
+                navigate("/auth/email-verification", { replace: true, state: { email } });
+            }else{
+                setSignUpError(emailData.error || "Verification email could not be sent");
+                toast.error("Verification email could not be sent!");
+            }
+        } catch {
+            setSignUpError("Unable to reach the server");
+            toast.error("Verification email could not be sent!");
+        } finally {
+            setIsSubmitting(false);
         }
     }
     return (
@@ -65,7 +71,7 @@ export const Signup = function () {
                             type="email"
                             placeholder="Email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => setEmail(e.target.value)} disabled={isSubmitting}
                         />
                     </div>
 
@@ -75,7 +81,7 @@ export const Signup = function () {
                             type="text"
                             placeholder="Username"
                             value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => setUsername(e.target.value)} disabled={isSubmitting}
                         />
                     </div>
 
@@ -85,15 +91,16 @@ export const Signup = function () {
                             type="password"
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            onChange={(e) => setPassword(e.target.value)} disabled={isSubmitting}
                         />
                     </div>
 
                     <button
                         className="btn btn-primary w-100 py-2"
                         type="submit"
+                        disabled={isSubmitting}
                     >
-                        Sign Up
+                        {isSubmitting ? <><span className="spinner-border spinner-border-sm me-2" />Sending code…</> : "Sign Up"}
                     </button>
                 </form>
 

@@ -1,5 +1,4 @@
 import { ApiError } from "./ApiError.js";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 export async function generateAccessAndRefreshToken(user) {
     try {

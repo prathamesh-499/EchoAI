@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 export function Navbar({onMenuClick}) {
     const { user, loading, setUser } = useContext(AuthContext);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const chipRef = useRef(null);
     const navigate = useNavigate();
     const initials = user?.username
@@ -26,6 +27,7 @@ export function Navbar({onMenuClick}) {
     }, [menuOpen]);
     async function handleLogout() {
         setMenuOpen(false);
+        setIsLoggingOut(true);
         try {
             const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, {
                 method: "POST",
@@ -40,6 +42,8 @@ export function Navbar({onMenuClick}) {
         } catch (err) {
             toast.error("Logout failed");
             console.log(err);
+        } finally {
+            setIsLoggingOut(false);
         }
     }
     return (
@@ -61,12 +65,15 @@ export function Navbar({onMenuClick}) {
                         </button>
                         {menuOpen && (
                             <div className="navbar-menu-dropdown">
-                                <button className="navbar-menu-item navbar-menu-item--logout" onClick={handleLogout}>
+                                <button className="navbar-menu-item" onClick={() => { setMenuOpen(false); navigate("/profile"); }} disabled={isLoggingOut}>
+                                    Profile
+                                </button>
+                                <button className="navbar-menu-item navbar-menu-item--logout" onClick={handleLogout} disabled={isLoggingOut}>
                                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                                         <path d="M5 1.5H2.5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1H5M9 9l3-2.5L9 4M12 6.5H4.5"
                                             stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
-                                    Log out
+                                    {isLoggingOut ? "Logging out…" : "Log out"}
                                 </button>
                             </div>
                         )}
