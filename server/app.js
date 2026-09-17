@@ -4,12 +4,13 @@ import cookieParser from "cookie-parser";
 import authrouter from "./routes/auth/signup.routes.js";
 import cors from "cors";
 import chatrouter from "./routes/index/chat.routes.js"
+import { connectRedis } from "./services/redis.js";
 const app =express();
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-	origin: 'https://echoai-97f4.onrender.com',
+	origin: process.env.CLIENT_URI,
 	methods: ['GET', 'POST', 'PUT', 'DELETE'],
 	credentials: true
 }));
@@ -17,10 +18,11 @@ app.use(cors({
 (async()=>{
 	try{
 		await mongoose.connect(process.env.MONGO_URI);
+		await connectRedis();
+		console.log("Connected to Redis");
 	}
 	catch(err){
 		console.log(err);
-		// res.status(500).send(err.message);
 	}
     app.listen(3000, () => {
 		console.log('Server is running')

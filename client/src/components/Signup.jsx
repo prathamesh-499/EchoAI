@@ -1,9 +1,7 @@
-import { data, Link ,useNavigate} from "react-router-dom";
-import { useState,useContext } from 'react';
+import { Link ,useNavigate} from "react-router-dom";
+import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import {AuthContext} from "./AuthContext"
 export const Signup = function () {
-    const{setUser}=useContext(AuthContext);
     const navigate = useNavigate();
     const [signUpError,setSignUpError]=useState(null);
     const [username, setUsername] = useState("");
@@ -20,23 +18,20 @@ export const Signup = function () {
         if(password.trim()===""){
             return setSignUpError("Password is required");
         };
-        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/signup`, {
+        const emailRes = await fetch(`${import.meta.env.VITE_SERVER_URL}/auth/verify-email`, {
             method: 'POST',
-            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email,username, password })
+            body: JSON.stringify({ email, username, password })
         });
-        const data=await res.json();
-        if(res.ok){
-            toast.success("Account created!");
-            setUser(data.user);
-            navigate("/",{ replace: true });
+        const emailData=await emailRes.json();
+        if(emailRes.ok){
+            toast.success("Verification email sent!");
+            navigate("/auth/email-verification", { replace: true, state: { email } });
         }else{
-            console.error(data);
-            setSignUpError(data.error);
-            toast.error("Account could not be created!");
+            console.error(emailData);
+            setSignUpError(emailData.error || "Verification email could not be sent");
+            return toast.error("Verification email could not be sent!");
         }
-
     }
     return (
         <div className="bg-dark vh-100 d-flex justify-content-center align-items-center">
