@@ -7,7 +7,7 @@ import { logout } from "../../controllers/logout.controllers.js";
 import { EmailVerificationController, confirmEmailVerification } from "../../controllers/emailVerification.controllers.js";
 const router = Router();
 router.post("/login",login);
-router.post("/logout",verifyJwt,logout);
+router.post("/logout",logout);
 router.get("/me",verifyJwt,auth);
 router.get("/refreshToken",refreshToken); 
 router.post("/verify-email",EmailVerificationController);
