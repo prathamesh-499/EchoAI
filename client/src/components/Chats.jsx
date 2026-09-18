@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { AuthContext } from "./AuthContext"
 import { useNavigate } from "react-router-dom";
 
-export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
+export function Chats({ chats, setChats, conversationIdRef, setConversation, isChatLoading }) {
     const navigate = useNavigate();
     const { user, setUser } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
@@ -168,7 +168,15 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                 />
 
             <div className="chats-body">
-                {chats.length === 0 ? (
+                {isChatLoading ? (
+                    <div className="chat-skeleton" aria-label="Loading conversation" aria-busy="true">
+                        <span className="chat-skeleton-line chat-skeleton-line--short" />
+                        <span className="chat-skeleton-line" />
+                        <span className="chat-skeleton-line chat-skeleton-line--medium" />
+                        <span className="chat-skeleton-line chat-skeleton-line--short chat-skeleton-line--right" />
+                        <span className="chat-skeleton-line chat-skeleton-line--right" />
+                    </div>
+                ) : chats.length === 0 ? (
                     <div className="chats-empty">
                         <svg viewBox="0 0 200 200" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
                             <path fillRule="evenodd" fill="#600495" d="M100,20 a80,80 0 1,0 0.1,0 Z M100,50 a50,50 0 1,1 -0.1,0 Z" />
@@ -201,6 +209,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                             placeholder="Ask anything…"
                             className="chats-textarea"
                             rows={1}
+                            disabled={isChatLoading}
 
                         />
                         <select
@@ -210,7 +219,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                                 setModel(e.target.value);
                                 localStorage.setItem("echoai-model", e.target.value);
                             }}
-                            disabled={loading}
+                            disabled={loading || isChatLoading}
                             aria-label="AI model"
                         >
                             <option value="gemini">Gemini</option>
@@ -220,7 +229,7 @@ export function Chats({ chats, setChats, conversationIdRef, setConversation }) {
                             type={loading ? "button" : "submit"}
                             onClick={loading ? stopGeneration : undefined}
                             className="chats-send-btn"
-                            disabled={!loading && message.trim() === ""}
+                            disabled={isChatLoading || (!loading && message.trim() === "")}
                         >
                             {loading ? (
                                 <svg width="14" height="14" viewBox="0 0 14 14"><rect width="14" height="14" rx="2" fill="currentColor" /></svg> // stop icon (square)

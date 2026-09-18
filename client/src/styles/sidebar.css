@@ -112,6 +112,26 @@
     border-radius: 3px;
 }
 
+.sidebar-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 6px 18px;
+}
+
+.sidebar-skeleton-label,
+.sidebar-skeleton-row,
+.chat-skeleton-line {
+    display: block;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #1a1a1a 25%, #282828 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.3s infinite linear;
+}
+
+.sidebar-skeleton-label { width: 45px; height: 10px; margin-bottom: 2px; }
+.sidebar-skeleton-row { height: 30px; width: 100%; }
+
 .sidebar-conv-item {
     display: flex;
     align-items: center;

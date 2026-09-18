@@ -21,6 +21,29 @@
 .chats-body::-webkit-scrollbar { width: 4px; }
 .chats-body::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 4px; }
 
+.chat-skeleton {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 780px;
+    width: calc(100% - 64px);
+    margin: 36px auto;
+}
+
+.chat-skeleton-line {
+    height: 58px;
+    width: 78%;
+}
+
+.chat-skeleton-line--short { width: 42%; }
+.chat-skeleton-line--medium { width: 62%; }
+.chat-skeleton-line--right { align-self: flex-end; }
+
+@keyframes skeleton-shimmer {
+    to { background-position: -200% 0; }
+}
+
 /* ── Empty state ──────────────────────────────────────── */
 .chats-empty {
     flex: 1;

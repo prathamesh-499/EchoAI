@@ -9,13 +9,14 @@ export const Home = function () {
     const conversationIdRef = useRef(null);
     const [conversation, setConversation] = useState([]);//user conversations
     const [chats, setChats] = useState([]);
+    const [isChatLoading, setIsChatLoading] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false); // mobile drawer
 
     if (loading) {
         return (
             <main className="session-loading" aria-live="polite">
                 <span className="spinner-border spinner-border-sm" aria-hidden="true" />
-                <p>Loading your chats…</p>
+                <p>Restoring your session…</p>
             </main>
         );
     }
@@ -27,6 +28,7 @@ export const Home = function () {
                 conversationIdRef={conversationIdRef}
                 conversation={conversation}
                 setConversation={setConversation}
+                setIsChatLoading={setIsChatLoading}
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen} />
             {sidebarOpen && (
@@ -34,7 +36,7 @@ export const Home = function () {
             )}
             <div className="home-main">
                 <Navbar onMenuClick={() => setSidebarOpen(true)} />
-                <Chats chats={chats} setConversation={setConversation} setChats={setChats} conversationIdRef={conversationIdRef} />
+                <Chats chats={chats} setConversation={setConversation} setChats={setChats} conversationIdRef={conversationIdRef} isChatLoading={isChatLoading} />
             </div>
         </div>
     );

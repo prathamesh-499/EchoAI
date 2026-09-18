@@ -4,7 +4,7 @@ import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-export function Sidebar({ setChats, conversationIdRef, setConversation, conversation, sidebarOpen, setSidebarOpen }) {
+export function Sidebar({ setChats, conversationIdRef, setConversation, conversation, setIsChatLoading, sidebarOpen, setSidebarOpen }) {
     const navigate = useNavigate();
     const { user, loading,setUser } = useContext(AuthContext);//get login user info 
     const [openMenuId, setOpenMenuId] = useState(null);//stores the id of the 3 dot toggle button that is clicked
@@ -13,9 +13,11 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
     const [title, setTitle] = useState("Echo");
     const renameInputRef = useRef(null);//to make the input focus and seleted
     const [collapsed, setCollapsed] = useState(false);
+    const [isConversationLoading, setIsConversationLoading] = useState(false);
     useEffect(() => {
         if (loading || !user) return;
         const getConversation = async () => {
+            setIsConversationLoading(true);
             try {
                 const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation`, {
                     method: "GET",
@@ -28,6 +30,8 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
                 }
             } catch (error) {
                 console.log(error.message);
+            } finally {
+                setIsConversationLoading(false);
             }
         };
         getConversation();
@@ -242,6 +246,7 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
 
     }
     async function loadChat(id, title) {
+        setIsChatLoading(true);
         try {
 
             let res = await fetch(`${import.meta.env.VITE_SERVER_URL}/conversation/${id}`, {
@@ -281,6 +286,8 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
         } catch (error) {
 
             console.log(error);
+        } finally {
+            setIsChatLoading(false);
         }
     }
 
@@ -313,7 +320,14 @@ export function Sidebar({ setChats, conversationIdRef, setConversation, conversa
             </div>
 
             <div className="sidebar-divider" />
-            {!collapsed && conversationMemo}
+            {!collapsed && (isConversationLoading ? <ConversationSkeleton /> : conversationMemo)}
         </div>
     );
+}
+
+function ConversationSkeleton() {
+    return <div className="sidebar-skeleton" aria-label="Loading conversations" aria-busy="true">
+        <span className="sidebar-skeleton-label" />
+        {[1, 2, 3, 4, 5].map((item) => <span className="sidebar-skeleton-row" key={item} />)}
+    </div>;
 }
